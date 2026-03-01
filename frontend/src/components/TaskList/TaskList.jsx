@@ -1,73 +1,59 @@
-import { useEffect, useState, useRef } from "react";
 import TaskFilter from "../TaskFilter/TaskFilter.jsx";
 import Modal from "../Modals/Modal.jsx";
 import TaskForm from "../TaskForm/TaskForm.jsx";
 import TaskItem from "../TaskItem/TaskItem.jsx";
-
-import {
-  getAllTasks,
-  createTask,
-  updateTask,
-  deleteTask,
-  toggleTask,
-} from "../../services/taskService";
+import { useTasks } from "../../hooks/useTasks";
+import { useModal } from "../../hooks/useModal";
+import { useInfiniteCarousel } from "../../hooks/useInfiniteCarousel";
 import "./TaskList.css";
 
 function TaskList() {
-  const [tasks, setTasks] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const carouselRef = useRef(null);
+  const { tasks, isLoading, createTask, updateTask, deleteTask, toggleTask } =
+    useTasks();
 
-  const isAdjustingRef = useRef(false);
-  const [isDragging, setIsDragging] = useState(false);
+  const {
+    isCreateOpen,
+    isUpdateOpen,
+    isDeleteOpen,
+    isToggleOpen,
+    selectedTask,
+    formMode,
+    newTask,
+    setNewTask,
+    setSelectedTask,
+    openCreateModal,
+    openUpdateModal,
+    openEditForm,
+    closeCreateModal,
+    closeUpdateModal,
+    openDeleteModal,
+    closeDeleteModal,
+    openToggleModal,
+    closeToggleModal,
+  } = useModal();
 
-  const startXRef = useRef(0);
-  const scrollLeftRef = useRef(0);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [isToggleOpen, setIsToggleOpen] = useState(false);
-  const [formMode, setFormMode] = useState("create"); // ADD THIS LINE
+  const {
+    carouselRef,
+    repetitions,
+    handleMouseDown,
+    handleMouseUp,
+    handleMouseMove,
+  } = useInfiniteCarousel(tasks);
 
   const handleTaskClick = (task) => {
-    setSelectedTask(task);
-    setIsUpdateOpen(true);
+    openUpdateModal(task);
   };
-  const getRepetitions = (taskCount) => {
-    if (taskCount <= 0) return 0;
-    if (taskCount >= 20) return 5;
-    return Math.floor(100 / taskCount);
-  };
-  // this needs only for safe smooth scroll with  mouse drag on desktop mode.
-  const repetitions = getRepetitions(tasks.length);
-  const [newTask, setNewTask] = useState({
-    title: "",
-    description: "",
-    priority: "low",
-  });
 
   const handleSubmit = async () => {
     try {
       if (formMode === "create") {
-        const createdTask = await createTask(newTask);
-
-        setTasks((prev) => [...prev, createdTask]);
+        await createTask(newTask);
       } else if (formMode === "update") {
-        const updatedTask = await updateTask(newTask.id, newTask);
-
-        setTasks((prev) =>
-          prev.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
-        );
+        await updateTask(newTask.id, newTask);
       }
 
-      setNewTask({
-        title: "",
-        description: "",
-        priority: "low",
-      });
-
-      setIsCreateOpen(false);
+      setNewTask({ title: "", description: "", priority: "low" });
+      closeCreateModal();
       setSelectedTask(null);
     } catch (error) {
       console.error("Failed to submit task:", error);
@@ -77,111 +63,26 @@ function TaskList() {
   const handleDelete = async () => {
     try {
       await deleteTask(selectedTask.id);
-
-      // Remove from UI
-      setTasks((prev) => prev.filter((task) => task.id !== selectedTask.id));
-
-      setIsDeleteOpen(false);
-      setIsUpdateOpen(false);
+      closeDeleteModal();
+      closeUpdateModal();
       setSelectedTask(null);
     } catch (error) {
       console.error("Failed to delete task:", error);
     }
   };
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getAllTasks();
-        console.log(`repetitions :${repetitions}`);
-        setTasks(data);
-      } catch (error) {
-        console.error("Failed to fetch tasks:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTasks();
-  }, []);
-
   const handleToggle = async () => {
     try {
-      const updatedTask = await toggleTask(selectedTask.id);
-
-      setTasks((prev) =>
-        prev.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
-      );
-
-      setIsToggleOpen(false);
-      setIsUpdateOpen(false);
+      await toggleTask(selectedTask.id);
+      closeToggleModal();
+      closeUpdateModal();
       setSelectedTask(null);
     } catch (error) {
       console.error("Failed to toggle task:", error);
     }
   };
 
-  // infinite scrolling logic
-  useEffect(() => {
-    const carousel = carouselRef.current;
-    if (!carousel || tasks.length === 0) return;
-
-    // Set initial position to middle
-    const oneSetWidth = carousel.scrollWidth / 3;
-    carousel.scrollLeft = oneSetWidth;
-
-    const handleScroll = () => {
-      if (isAdjustingRef.current) return;
-
-      const scrollLeft = carousel.scrollLeft;
-      const scrollWidth = carousel.scrollWidth;
-      const clientWidth = carousel.clientWidth;
-      const oneSetWidth = scrollWidth / 3;
-
-      // scroling to right
-      if (scrollLeft + clientWidth >= scrollWidth - 10) {
-        isAdjustingRef.current = true;
-        carousel.scrollLeft = oneSetWidth + (scrollLeft - oneSetWidth * 2);
-        setTimeout(() => {
-          isAdjustingRef.current = false;
-        }, 50);
-      }
-      // scrolling to left
-      else if (scrollLeft <= 10) {
-        isAdjustingRef.current = true;
-        carousel.scrollLeft = oneSetWidth + scrollLeft;
-        setTimeout(() => {
-          isAdjustingRef.current = false;
-        }, 50);
-      }
-    };
-
-    carousel.addEventListener("scroll", handleScroll, { passive: true });
-    return () => carousel.removeEventListener("scroll", handleScroll);
-  }, [tasks]);
-
-  // drag to scroll handlers
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    startXRef.current = e.pageX - carouselRef.current.offsetLeft;
-    scrollLeftRef.current = carouselRef.current.scrollLeft;
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
-
-    const x = e.pageX - carouselRef.current.offsetLeft;
-    const walk = (x - startXRef.current) * 1.5;
-    carouselRef.current.scrollLeft = scrollLeftRef.current - walk;
-  };
-
-  // skeleton while loading
+  // Skeleton while loading
   if (isLoading) {
     return (
       <div className="task-list">
@@ -198,33 +99,40 @@ function TaskList() {
     );
   }
 
-  // empty state
+  // Empty state
   if (tasks.length === 0) {
     return (
       <div className="task-list">
-        <h2>Task List</h2>
-        <p className="empty-state">No tasks available</p>
+        <TaskFilter onAddTask={openCreateModal} />
+        <div className="header">
+          <h2>Task List</h2>
+          <span className="badge">0 tasks</span>
+        </div>
+        <p className="empty-state">
+          No tasks available. Click "Add Task" to create your first task!
+        </p>
+
+        <Modal isOpen={isCreateOpen} onClose={closeCreateModal}>
+          <TaskForm
+            task={newTask}
+            setTask={setNewTask}
+            mode={formMode}
+            onSubmit={handleSubmit}
+          />
+        </Modal>
       </div>
     );
   }
 
   return (
     <div className="task-list">
-      <TaskFilter
-        onAddTask={() => {
-          setNewTask({
-            title: "",
-            description: "",
-            priority: "",
-          });
-          setFormMode("create");
-          setIsCreateOpen(true);
-        }}
-      />{" "}
+      <TaskFilter onAddTask={openCreateModal} />
+
       <div className="header">
         <h2>Task List</h2>
         <span className="badge">{tasks.length} tasks</span>
       </div>
+
       <div
         className="carousel"
         ref={carouselRef}
@@ -242,7 +150,6 @@ function TaskList() {
               className="task-card"
               onClick={() => handleTaskClick(task)}
             >
-              {" "}
               <h3>{task.title}</h3>
               <p>{task.description}</p>
               <div className="meta">
@@ -256,7 +163,9 @@ function TaskList() {
             </div>
           ))}
       </div>
-      <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)}>
+
+      {/* Create Modal */}
+      <Modal isOpen={isCreateOpen} onClose={closeCreateModal}>
         <TaskForm
           task={newTask}
           setTask={setNewTask}
@@ -264,57 +173,41 @@ function TaskList() {
           onSubmit={handleSubmit}
         />
       </Modal>
-      <Modal isOpen={isUpdateOpen} onClose={() => setIsUpdateOpen(false)}>
+
+      {/* Update Modal */}
+      <Modal isOpen={isUpdateOpen} onClose={closeUpdateModal}>
         <TaskItem
           task={selectedTask}
-          onEdit={() => {
-            setIsUpdateOpen(false);
-            setNewTask(selectedTask);
-            setFormMode("update");
-            setIsCreateOpen(true);
-          }}
-          onToggle={() => {
-            setIsToggleOpen(true);
-          }}
-          onDelete={() => {
-            setIsDeleteOpen(true);
-          }}
+          onEdit={() => openEditForm(selectedTask)}
+          onToggle={openToggleModal}
+          onDelete={openDeleteModal}
         />
       </Modal>
-      <Modal isOpen={isToggleOpen} onClose={() => setIsToggleOpen(false)}>
+
+      {/* Toggle Confirmation Modal */}
+      <Modal isOpen={isToggleOpen} onClose={closeToggleModal}>
         <div>
           <h3>
             Are you sure you want to mark this task as{" "}
             {selectedTask?.completed ? "active" : "completed"}?
           </h3>
-
           <div
             style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}
           >
-            <button onClick={() => setIsToggleOpen(false)}>Cancel</button>
-
-            <button
-              onClick={() => {
-                console.log("Toggle:", selectedTask);
-                handleToggle(selectedTask.id);
-                setIsToggleOpen(false);
-                setIsUpdateOpen(false);
-              }}
-            >
-              Confirm
-            </button>
+            <button onClick={closeToggleModal}>Cancel</button>
+            <button onClick={handleToggle}>Confirm</button>
           </div>
         </div>
       </Modal>
-      <Modal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)}>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={isDeleteOpen} onClose={closeDeleteModal}>
         <div>
           <h3>Are you sure you want to delete?</h3>
-
           <div
             style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}
           >
-            <button onClick={() => setIsDeleteOpen(false)}>Cancel</button>
-
+            <button onClick={closeDeleteModal}>Cancel</button>
             <button onClick={handleDelete}>Delete</button>
           </div>
         </div>
