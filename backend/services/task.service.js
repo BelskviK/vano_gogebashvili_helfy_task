@@ -44,7 +44,10 @@ export const updateTask = (id, data) => {
 };
 
 export const deleteTask = (id) => {
-  return "deleteTask";
+  const index = tasks.findIndex((t) => t.id === id);
+  if (index === -1) return null;
+
+  return tasks.splice(index, 1)[0];
 };
 
 export const toggleTaskStatus = (id) => {
