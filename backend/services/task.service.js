@@ -51,5 +51,11 @@ export const deleteTask = (id) => {
 };
 
 export const toggleTaskStatus = (id) => {
-  return "toggleTaskStatus";
+  const task = tasks.find((t) => t.id === id);
+
+  if (!task) return null;
+
+  task.completed = !task.completed;
+
+  return task;
 };
