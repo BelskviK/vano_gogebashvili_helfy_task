@@ -7,12 +7,14 @@ function TaskFilter({
   setStatusFilter,
   priorityFilter,
   setPriorityFilter,
+  sortOrder,
+  setSortOrder,
   onAddTask,
+  onReset,
 }) {
   return (
     <div className="toolbar">
       {/* TODO */}
-      {/* searc */}
       <input
         type="text"
         placeholder="Search tasks..."
@@ -20,7 +22,6 @@ function TaskFilter({
         onChange={(e) => setSearch(e.target.value)}
         className="toolbar-input"
       />
-      {/* TODO */}
       {/* status changer  */}
       <select
         value={statusFilter}
@@ -32,7 +33,6 @@ function TaskFilter({
         <option value="active">Active</option>
       </select>
 
-      {/* TODO */}
       {/* prioritu changer */}
       <select
         value={priorityFilter}
@@ -45,8 +45,26 @@ function TaskFilter({
         <option value="high">High</option>
       </select>
 
+      {/* Sort order toggle button */}
+      <button
+        onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+        className="toolbar-button sort-order"
+        title={sortOrder === "asc" ? "Ascending" : "Descending"}
+      >
+        Sort {sortOrder === "asc" ? "↑" : "↓"}
+      </button>
+
+      {/* Reset filters button */}
+      <button
+        onClick={onReset}
+        className="toolbar-button reset-button"
+        title="Reset all filters"
+      >
+        ⟲ Reset
+      </button>
+
       {/* Add Task */}
-      <button onClick={onAddTask} className="toolbar-button">
+      <button onClick={onAddTask} className="toolbar-button add-task">
         + Add Task
       </button>
     </div>

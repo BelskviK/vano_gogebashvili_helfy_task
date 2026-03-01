@@ -5,11 +5,25 @@ import TaskItem from "../TaskItem/TaskItem.jsx";
 import { useTasks } from "../../hooks/useTasks";
 import { useModal } from "../../hooks/useModal";
 import { useInfiniteCarousel } from "../../hooks/useInfiniteCarousel";
+import { useTaskFilters } from "../../hooks/useTaskFilters";
 import "./TaskList.css";
 
 function TaskList() {
   const { tasks, isLoading, createTask, updateTask, deleteTask, toggleTask } =
     useTasks();
+
+  const {
+    search,
+    setSearch,
+    statusFilter,
+    setStatusFilter,
+    priorityFilter,
+    setPriorityFilter,
+    sortOrder,
+    setSortOrder,
+    filteredAndSortedTasks,
+    resetFilters,
+  } = useTaskFilters(tasks);
 
   const {
     isCreateOpen,
@@ -38,7 +52,7 @@ function TaskList() {
     handleMouseDown,
     handleMouseUp,
     handleMouseMove,
-  } = useInfiniteCarousel(tasks);
+  } = useInfiniteCarousel(filteredAndSortedTasks);
 
   const handleTaskClick = (task) => {
     openUpdateModal(task);
@@ -103,7 +117,18 @@ function TaskList() {
   if (tasks.length === 0) {
     return (
       <div className="task-list">
-        <TaskFilter onAddTask={openCreateModal} />
+        <TaskFilter
+          search={search}
+          setSearch={setSearch}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          priorityFilter={priorityFilter}
+          setPriorityFilter={setPriorityFilter}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          onAddTask={openCreateModal}
+          onReset={resetFilters} // Pass reset function
+        />
         <div className="header">
           <h2>Task List</h2>
           <span className="badge">0 tasks</span>
@@ -126,11 +151,22 @@ function TaskList() {
 
   return (
     <div className="task-list">
-      <TaskFilter onAddTask={openCreateModal} />
+      <TaskFilter
+        search={search}
+        setSearch={setSearch}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        priorityFilter={priorityFilter}
+        setPriorityFilter={setPriorityFilter}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+        onAddTask={openCreateModal}
+        onReset={resetFilters}
+      />
 
       <div className="header">
         <h2>Task List</h2>
-        <span className="badge">{tasks.length} tasks</span>
+        <span className="badge">{filteredAndSortedTasks.length} tasks</span>
       </div>
 
       <div
@@ -142,7 +178,7 @@ function TaskList() {
         onMouseMove={handleMouseMove}
       >
         {Array(repetitions)
-          .fill(tasks)
+          .fill(filteredAndSortedTasks)
           .flat()
           .map((task, index) => (
             <div

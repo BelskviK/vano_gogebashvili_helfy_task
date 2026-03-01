@@ -39,7 +39,24 @@
 .toolbar-button:hover {
   background: #f0f0f0;
 }
+.toolbar-button.reset-button {
+  background-color: #6c757d;
+  color: white;
+}
 
+.toolbar-button.reset-button:hover {
+  background-color: #5a6268;
+}
+
+.toolbar-button.sort-order {
+  background-color: #2196f3;
+  color: white;
+  min-width: 100px;
+}
+
+.toolbar-button.sort-order:hover {
+  background-color: #1976d2;
+}
 @media (min-width: 768px) {
   .toolbar {
     width: 90%;
