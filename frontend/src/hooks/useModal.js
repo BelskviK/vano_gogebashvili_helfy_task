@@ -13,6 +13,9 @@ export const useModal = () => {
     priority: "low",
   });
 
+  const isAnyModalOpen =
+    isCreateOpen || isUpdateOpen || isDeleteOpen || isToggleOpen;
+
   const openCreateModal = () => {
     setNewTask({ title: "", description: "", priority: "low" });
     setFormMode("create");
@@ -54,6 +57,7 @@ export const useModal = () => {
     isUpdateOpen,
     isDeleteOpen,
     isToggleOpen,
+    isAnyModalOpen, // NEW: Add this
     selectedTask,
     formMode,
     newTask,

@@ -6,11 +6,21 @@ import { useTasks } from "../../hooks/useTasks";
 import { useModal } from "../../hooks/useModal";
 import { useInfiniteCarousel } from "../../hooks/useInfiniteCarousel";
 import { useTaskFilters } from "../../hooks/useTaskFilters";
+import { useDragAndDrop } from "../../hooks/useDragAndDrop";
+import { useTaskReorder } from "../../hooks/useTaskReorder";
+import { useTaskHandlers } from "../../hooks/useTaskHandlers";
 import "./TaskList.css";
 
 function TaskList() {
-  const { tasks, isLoading, createTask, updateTask, deleteTask, toggleTask } =
-    useTasks();
+  const {
+    tasks,
+    isLoading,
+    createTask,
+    updateTask,
+    deleteTask,
+    toggleTask,
+    reorderTasks,
+  } = useTasks();
 
   const {
     search,
@@ -30,6 +40,7 @@ function TaskList() {
     isUpdateOpen,
     isDeleteOpen,
     isToggleOpen,
+    isAnyModalOpen,
     selectedTask,
     formMode,
     newTask,
@@ -46,55 +57,63 @@ function TaskList() {
     closeToggleModal,
   } = useModal();
 
+  // Handle reordering with filtered tasks
+  const handleReorderWithFilters = useTaskReorder(
+    filteredAndSortedTasks,
+    tasks,
+    reorderTasks,
+  );
+
+  // Task operation handlers
+  const { handleSubmit, handleDelete, handleToggle } = useTaskHandlers(
+    createTask,
+    updateTask,
+    deleteTask,
+    toggleTask,
+    setNewTask,
+    closeCreateModal,
+    closeUpdateModal,
+    closeDeleteModal,
+    closeToggleModal,
+    setSelectedTask,
+  );
+
   const {
     carouselRef,
     repetitions,
     handleMouseDown,
     handleMouseUp,
     handleMouseMove,
-  } = useInfiniteCarousel(filteredAndSortedTasks);
+    handleMouseEnter,
+    handleMouseLeave,
+  } = useInfiniteCarousel(filteredAndSortedTasks, isAnyModalOpen);
+
+  const {
+    draggedItem,
+    dragOverItem,
+    handleDragStart,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleDragEnd,
+  } = useDragAndDrop(filteredAndSortedTasks, handleReorderWithFilters);
 
   const handleTaskClick = (task) => {
-    openUpdateModal(task);
-  };
-
-  const handleSubmit = async () => {
-    try {
-      if (formMode === "create") {
-        await createTask(newTask);
-      } else if (formMode === "update") {
-        await updateTask(newTask.id, newTask);
-      }
-
-      setNewTask({ title: "", description: "", priority: "low" });
-      closeCreateModal();
-      setSelectedTask(null);
-    } catch (error) {
-      console.error("Failed to submit task:", error);
+    if (!draggedItem) {
+      openUpdateModal(task);
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      await deleteTask(selectedTask.id);
-      closeDeleteModal();
-      closeUpdateModal();
-      setSelectedTask(null);
-    } catch (error) {
-      console.error("Failed to delete task:", error);
-    }
+  // Prevent carousel drag when interacting with drag handle
+  const handleDragHandleMouseDown = (e) => {
+    console.log("🖐️ DRAG HANDLE MOUSE DOWN - preventing carousel drag");
+    e.stopPropagation();
   };
 
-  const handleToggle = async () => {
-    try {
-      await toggleTask(selectedTask.id);
-      closeToggleModal();
-      closeUpdateModal();
-      setSelectedTask(null);
-    } catch (error) {
-      console.error("Failed to toggle task:", error);
-    }
-  };
+  // Wrapper functions to pass selectedTask
+  const onDelete = () => handleDelete(selectedTask);
+  const onToggle = () => handleToggle(selectedTask);
+  const onSubmit = () => handleSubmit(formMode, newTask);
 
   // Skeleton while loading
   if (isLoading) {
@@ -127,7 +146,7 @@ function TaskList() {
           sortOrder={sortOrder}
           setSortOrder={setSortOrder}
           onAddTask={openCreateModal}
-          onReset={resetFilters} // Pass reset function
+          onReset={resetFilters}
         />
         <div className="header">
           <h2>Task List</h2>
@@ -142,7 +161,7 @@ function TaskList() {
             task={newTask}
             setTask={setNewTask}
             mode={formMode}
-            onSubmit={handleSubmit}
+            onSubmit={onSubmit}
           />
         </Modal>
       </div>
@@ -174,30 +193,64 @@ function TaskList() {
         ref={carouselRef}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
       >
         {Array(repetitions)
           .fill(filteredAndSortedTasks)
           .flat()
-          .map((task, index) => (
-            <div
-              key={`${task.id}-${index}`}
-              className="task-card"
-              onClick={() => handleTaskClick(task)}
-            >
-              <h3>{task.title}</h3>
-              <p>{task.description}</p>
-              <div className="meta">
-                <span className={`priority ${task.priority}`}>
-                  {task.priority}
-                </span>
-                <span className={`status ${task.completed ? "done" : ""}`}>
-                  {task.completed ? "✓" : "○"}
-                </span>
+          .map((task, index) => {
+            const isDragging = draggedItem?.id === task.id;
+            const isDragOver = dragOverItem === index;
+
+            return (
+              <div
+                key={`${task.id}-${index}`}
+                className={`task-card ${isDragging ? "dragging" : ""} ${
+                  isDragOver ? "drag-over" : ""
+                }`}
+                onClick={() => handleTaskClick(task)}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  handleDragOver(e, index);
+                }}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleDrop(e, index);
+                }}
+              >
+                {/* Drag handle for reordering - isolated from carousel drag */}
+                <div
+                  className="drag-handle"
+                  draggable={true}
+                  onDragStart={(e) => {
+                    console.log("🎯 DRAG HANDLE START at index:", index);
+                    e.stopPropagation();
+                    handleDragStart(e, index, task);
+                  }}
+                  onDragEnd={handleDragEnd}
+                  onMouseDown={handleDragHandleMouseDown}
+                  title="Drag to reorder"
+                >
+                  ⋮⋮
+                </div>
+
+                <h3>{task.title}</h3>
+                <p>{task.description}</p>
+                <div className="meta">
+                  <span className={`priority ${task.priority}`}>
+                    {task.priority}
+                  </span>
+                  <span className={`status ${task.completed ? "done" : ""}`}>
+                    {task.completed ? "✓" : "○"}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
       </div>
 
       {/* Create Modal */}
@@ -206,7 +259,7 @@ function TaskList() {
           task={newTask}
           setTask={setNewTask}
           mode={formMode}
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
         />
       </Modal>
 
@@ -231,7 +284,7 @@ function TaskList() {
             style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}
           >
             <button onClick={closeToggleModal}>Cancel</button>
-            <button onClick={handleToggle}>Confirm</button>
+            <button onClick={onToggle}>Confirm</button>
           </div>
         </div>
       </Modal>
@@ -244,7 +297,7 @@ function TaskList() {
             style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}
           >
             <button onClick={closeDeleteModal}>Cancel</button>
-            <button onClick={handleDelete}>Delete</button>
+            <button onClick={onDelete}>Delete</button>
           </div>
         </div>
       </Modal>

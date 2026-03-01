@@ -8,12 +8,17 @@ export const useTaskFilters = (tasks) => {
 
   // Filter and sort tasks
   const filteredAndSortedTasks = useMemo(() => {
+    if (!tasks || !Array.isArray(tasks)) {
+      return [];
+    }
+
     return tasks
       .filter((task) => {
+        if (!task) return false;
+
         // Search filter
-        const matchesSearch = task.title
-          .toLowerCase()
-          .includes(search.toLowerCase());
+        const matchesSearch =
+          task.title?.toLowerCase().includes(search.toLowerCase()) ?? false;
 
         // Status filter
         const matchesStatus =
@@ -28,10 +33,12 @@ export const useTaskFilters = (tasks) => {
         return matchesSearch && matchesStatus && matchesPriority;
       })
       .sort((a, b) => {
+        if (!a || !b) return 0;
+
         // Always sort by priority
         const priorityOrder = { low: 1, medium: 2, high: 3 };
         const comparison =
-          priorityOrder[a.priority] - priorityOrder[b.priority];
+          (priorityOrder[a.priority] || 0) - (priorityOrder[b.priority] || 0);
 
         return sortOrder === "asc" ? comparison : -comparison;
       });

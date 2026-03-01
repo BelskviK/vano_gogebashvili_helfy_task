@@ -52,11 +52,78 @@
 .task-card {
   flex-shrink: 0;
   width: 240px;
+  height: 180px;
   border: 1px solid #eee;
   border-radius: 10px;
   padding: 15px;
   background: white;
   transition: all 0.2s;
+  position: relative;
+  cursor: grab;
+  transition:
+    all 0.2s,
+    transform 0.1s;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.task-card:active {
+  cursor: grabbing;
+}
+
+.task-card.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  cursor: grabbing;
+}
+
+.task-card.drag-over {
+  border: 2px dashed #4caf50;
+  transform: scale(1.02);
+  background: #f0f9f0;
+}
+
+.drag-handle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #999;
+  cursor: grab;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  line-height: 1;
+  border-radius: 4px;
+  z-index: 10; /* Ensure it's above other content */
+}
+
+.drag-handle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+.task-card:hover .drag-handle {
+  opacity: 1;
+}
+.drag-handle:active {
+  cursor: grabbing;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Prevent text selection while dragging */
+body.dragging {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+body.dragging .task-card {
+  cursor: grabbing;
 }
 
 .task-card:hover {
@@ -132,7 +199,14 @@
   padding: 40px 20px;
   font-size: 0.9rem;
 }
-
+@media (max-width: 768px) {
+  .drag-handle {
+    opacity: 0.7;
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+  }
+}
 @media (min-width: 768px) {
   .header h2 {
     font-size: 1.5rem;
@@ -149,6 +223,7 @@
   .task-card {
     width: 240px;
     padding: 15px;
+    cursor: grab;
   }
 
   .task-card h3 {
