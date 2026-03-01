@@ -6,10 +6,6 @@ const allowedPriorities = Object.values(Priority);
 
 export const getAllTasks = () => tasks;
 
-export const getTaskById = (id) => {
-  return "getTaskById";
-};
-
 export const createNewTask = ({ title, description, priority }) => {
   if (!allowedPriorities.includes(priority)) {
     const error = new Error("Invalid priority");
