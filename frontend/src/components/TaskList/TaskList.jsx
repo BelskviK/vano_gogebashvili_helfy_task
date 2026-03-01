@@ -4,7 +4,7 @@ import Modal from "../Modals/Modal.jsx";
 import TaskForm from "../TaskForm/TaskForm.jsx";
 import TaskItem from "../TaskItem/TaskItem.jsx";
 
-import { getAllTasks } from "../../services/taskService";
+import { getAllTasks, createTask } from "../../services/taskService";
 import "./TaskList.css";
 
 function TaskList() {
@@ -40,18 +40,22 @@ function TaskList() {
     description: "",
     priority: "low",
   });
-  const handleCreate = () => {
-    console.log("Create:", newTask);
+  const handleCreate = async () => {
+    try {
+      const createdTask = await createTask(newTask);
 
-    // TODO api cals here
+      setTasks((prevTasks) => [...prevTasks, createdTask]);
 
-    setNewTask({
-      title: "",
-      description: "",
-      priority: "low",
-    });
+      setNewTask({
+        title: "",
+        description: "",
+        priority: "low",
+      });
 
-    setIsCreateOpen(false);
+      setIsCreateOpen(false);
+    } catch (error) {
+      console.error("Failed to create task:", error);
+    }
   };
   useEffect(() => {
     const fetchTasks = async () => {
