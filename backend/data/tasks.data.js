@@ -5,13 +5,13 @@ const tasks = [
     description: "install node modules",
     completed: false,
     createdAt: "2026-03-01T13:03:34.170Z",
-    priority: "high",
+    priority: "medium",
   },
   {
     id: 2,
     title: "npm run dev",
     description: "start a app on localhost",
-    completed: false,
+    completed: true,
     createdAt: "2026-03-01T13:03:55.450Z",
     priority: "high",
   },
@@ -21,7 +21,7 @@ const tasks = [
     description: "start a on host",
     completed: false,
     createdAt: "2026-03-01T13:04:11.196Z",
-    priority: "high",
+    priority: "low",
   },
 ];
 export default tasks;

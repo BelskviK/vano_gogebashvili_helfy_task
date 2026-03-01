@@ -5,7 +5,12 @@ import TaskRouter from "./routes/task.routes.js";
 const app = express();
 const PORT = 4000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  }),
+);
 app.use(express.json());
 app.use("/api/tasks", TaskRouter);
 

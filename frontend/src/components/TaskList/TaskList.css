@@ -1,0 +1,134 @@
+.task-list {
+  margin-top: 20px;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  margin-bottom: 10px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.badge {
+  background: white;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.carousel {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 10px;
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel:active {
+  cursor: grabbing;
+}
+
+.task-card {
+  flex-shrink: 0;
+  width: 240px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 15px;
+  background: white;
+  transition: all 0.2s;
+}
+
+.task-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.task-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+}
+
+.task-card p {
+  margin: 4px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.priority {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.priority.low {
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+.priority.medium {
+  background: #fff4e5;
+  color: #a95e0d;
+}
+.priority.high {
+  background: #fce8e8;
+  color: #c61a17;
+}
+
+.status {
+  font-size: 1.2rem;
+  color: #9c9c9c;
+}
+
+.status.done {
+  color: #1ed048;
+}
+
+/* skeleton */
+.skeleton .skeleton-title {
+  height: 24px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.skeleton .skeleton-text {
+  height: 16px;
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #a8a8a8;
+  padding: 40px;
+}
