@@ -7,10 +7,7 @@ const PORT = 4000;
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://vano-gogebashvili-helfy-task.onrender.com",
-    ],
+    origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   }),
 );

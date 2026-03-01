@@ -116,15 +116,36 @@ function TaskList() {
   const onSubmit = () => handleSubmit(formMode, newTask);
 
   // Skeleton while loading
+  // Skeleton while loading
   if (isLoading) {
     return (
       <div className="task-list">
-        <h2>Task List</h2>
+        <TaskFilter
+          search={search}
+          setSearch={setSearch}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          priorityFilter={priorityFilter}
+          setPriorityFilter={setPriorityFilter}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          onAddTask={openCreateModal}
+          onReset={resetFilters}
+        />
+        <div className="header">
+          <h2>Task List</h2>
+          <span className="badge">0 tasks</span>
+        </div>
         <div className="carousel">
-          {[...Array(4)].map((_, i) => (
+          {[...Array(20)].map((_, i) => (
             <div key={i} className="task-card skeleton">
               <div className="skeleton-title"></div>
               <div className="skeleton-text"></div>
+              <div className="skeleton-text" style={{ width: "60%" }}></div>
+              <div className="meta skeleton-meta">
+                <span className="skeleton-priority"></span>
+                <span className="skeleton-status"></span>
+              </div>
             </div>
           ))}
         </div>
