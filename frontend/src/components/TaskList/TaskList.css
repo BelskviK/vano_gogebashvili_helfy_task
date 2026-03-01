@@ -17,14 +17,15 @@
 .header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: white;
+  color: var(--text-primary);
 }
 
 .badge {
-  background: white;
+  background: var(--badge-bg);
   padding: 4px 8px;
   border-radius: 20px;
   font-size: 0.85rem;
+  color: var(--badge-text);
 }
 
 .carousel {
@@ -53,20 +54,20 @@
   flex-shrink: 0;
   width: 240px;
   height: 180px;
-  border: 1px solid #eee;
+  border: 1px solid var(--card-border);
   border-radius: 10px;
   padding: 15px;
-  background: white;
+  background: var(--card-bg);
   transition: all 0.2s;
   position: relative;
   cursor: grab;
-  transition:
-    all 0.2s,
-    transform 0.1s;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   overflow: hidden;
+  box-shadow: 0 2px 4px var(--card-shadow);
 }
+
 .task-card:active {
   cursor: grabbing;
 }
@@ -78,9 +79,36 @@
 }
 
 .task-card.drag-over {
-  border: 2px dashed #4caf50;
+  border: 2px dashed var(--drag-over-border);
   transform: scale(1.02);
-  background: #f0f9f0;
+  background: var(--drag-over-bg);
+}
+
+.task-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px var(--card-shadow);
+}
+
+.task-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  color: var(--modal-text);
+}
+
+.task-card p {
+  margin: 4px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--card-border);
 }
 
 .drag-handle {
@@ -93,112 +121,87 @@
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  color: #999;
+  color: var(--drag-handle);
   cursor: grab;
   user-select: none;
   opacity: 0;
   transition: opacity 0.2s;
   line-height: 1;
   border-radius: 4px;
-  z-index: 10; /* Ensure it's above other content */
+  z-index: 10;
 }
 
 .drag-handle:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--drag-handle-hover);
 }
+
 .task-card:hover .drag-handle {
   opacity: 1;
 }
+
 .drag-handle:active {
   cursor: grabbing;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: var(--drag-handle-hover);
 }
 
-/* Prevent text selection while dragging */
-body.dragging {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
-
-body.dragging .task-card {
-  cursor: grabbing;
-}
-
-.task-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.task-card h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.1rem;
-}
-
-.task-card p {
-  margin: 4px 0;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid #eee;
-}
-
-.priority {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  text-transform: capitalize;
-}
-
+/* Priority colors remain consistent in dark mode */
 .priority.low {
-  background: #e6f4ea;
   color: #1e7e34;
 }
+
+.dark-theme .priority.low {
+  color: #8bc34a;
+}
+
 .priority.medium {
-  background: #fff4e5;
   color: #a95e0d;
 }
+
+.dark-theme .priority.medium {
+  color: #ffb74d;
+}
+
 .priority.high {
-  background: #fce8e8;
   color: #c61a17;
+}
+
+.dark-theme .priority.high {
+  color: #ff6b6b;
 }
 
 .status {
   font-size: 1.2rem;
-  color: #9c9c9c;
+  color: var(--drag-handle);
 }
 
 .status.done {
   color: #1ed048;
 }
 
+.skeleton .skeleton-title,
+.skeleton .skeleton-text {
+  background: var(--skeleton-bg);
+}
+
 .skeleton .skeleton-title {
   height: 24px;
-  background: #e0e0e0;
   border-radius: 4px;
   margin-bottom: 10px;
 }
 
 .skeleton .skeleton-text {
   height: 16px;
-  background: #e0e0e0;
   border-radius: 4px;
 }
 
 .empty-state {
   text-align: center;
-  color: #a8a8a8;
+  color: var(--text-secondary);
   padding: 40px 20px;
   font-size: 0.9rem;
+  opacity: 0.8;
 }
+
 @media (max-width: 768px) {
   .drag-handle {
     opacity: 0.7;
@@ -207,53 +210,10 @@ body.dragging .task-card {
     height: 40px;
   }
 }
-@media (min-width: 768px) {
-  .header h2 {
-    font-size: 1.5rem;
-  }
-
-  .badge {
-    font-size: 0.85rem;
-  }
-
-  .carousel {
-    gap: 16px;
-  }
-
-  .task-card {
-    width: 240px;
-    padding: 15px;
-    cursor: grab;
-  }
-
-  .task-card h3 {
-    font-size: 1.1rem;
-  }
-
-  .task-card p {
-    font-size: 0.9rem;
-  }
-
-  .priority {
-    font-size: 0.75rem;
-  }
-
-  .status {
-    font-size: 1.2rem;
-  }
-
-  .skeleton .skeleton-title {
-    height: 24px;
-  }
-
-  .skeleton .skeleton-text {
-    height: 16px;
-  }
-}
 
 @media (min-width: 1024px) {
   .task-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 10px 20px var(--card-shadow);
   }
 }

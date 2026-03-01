@@ -7,11 +7,13 @@
 .task-item h2 {
   margin: 0;
   font-size: 18px;
+  color: var(--modal-text);
 }
 
 .task-item p {
   margin: 0;
   font-size: 14px;
+  color: var(--text-secondary);
 }
 
 .task-item .actions {
@@ -29,13 +31,26 @@
 }
 
 .edit-btn {
-  background: #764ba2;
+  background: var(--button-primary);
   color: white;
 }
 
 .delete-btn {
   background: #ffcbcb;
+  color: #333;
 }
+
+.dark-theme .delete-btn {
+  background: #4a1a1a;
+  color: #ff6b6b;
+}
+
 .toggle-btn {
   background: #b4ff9c;
+  color: #333;
+}
+
+.dark-theme .toggle-btn {
+  background: #1e3a1e;
+  color: #8bc34a;
 }
