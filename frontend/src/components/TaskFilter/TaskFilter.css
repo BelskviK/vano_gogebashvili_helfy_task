@@ -1,0 +1,77 @@
+.toolbar {
+  width: 95%;
+  margin: 15px auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar-input,
+.toolbar-select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: white;
+  width: 100%;
+}
+
+.toolbar-button {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: none;
+  background: #ffffff;
+  color: #764ba2;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+  width: 100%;
+}
+
+.toolbar-button:hover {
+  background: #f0f0f0;
+}
+
+@media (min-width: 768px) {
+  .toolbar {
+    width: 90%;
+    margin: 20px auto;
+    padding: 10px 15px;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .toolbar-input,
+  .toolbar-select {
+    width: auto;
+    min-width: 140px;
+    flex: 1;
+  }
+
+  .toolbar-button {
+    width: auto;
+    padding: 8px 14px;
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .toolbar {
+    width: 80%;
+  }
+
+  .toolbar-input,
+  .toolbar-select {
+    min-width: 160px;
+  }
+}

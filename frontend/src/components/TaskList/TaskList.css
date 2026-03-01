@@ -113,7 +113,6 @@
   color: #1ed048;
 }
 
-/* skeleton */
 .skeleton .skeleton-title {
   height: 24px;
   background: #e0e0e0;
@@ -130,5 +129,56 @@
 .empty-state {
   text-align: center;
   color: #a8a8a8;
-  padding: 40px;
+  padding: 40px 20px;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .header h2 {
+    font-size: 1.5rem;
+  }
+
+  .badge {
+    font-size: 0.85rem;
+  }
+
+  .carousel {
+    gap: 16px;
+  }
+
+  .task-card {
+    width: 240px;
+    padding: 15px;
+  }
+
+  .task-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .task-card p {
+    font-size: 0.9rem;
+  }
+
+  .priority {
+    font-size: 0.75rem;
+  }
+
+  .status {
+    font-size: 1.2rem;
+  }
+
+  .skeleton .skeleton-title {
+    height: 24px;
+  }
+
+  .skeleton .skeleton-text {
+    height: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .task-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  }
 }

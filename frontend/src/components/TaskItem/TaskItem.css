@@ -1,0 +1,41 @@
+.task-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-item h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.task-item p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.task-item .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.task-item button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.edit-btn {
+  background: #764ba2;
+  color: white;
+}
+
+.delete-btn {
+  background: #ffcbcb;
+}
+.toggle-btn {
+  background: #b4ff9c;
+}

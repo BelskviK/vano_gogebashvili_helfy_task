@@ -1,4 +1,9 @@
 import { useEffect, useState, useRef } from "react";
+import TaskFilter from "../TaskFilter/TaskFilter.jsx";
+import Modal from "../Modals/Modal.jsx";
+import TaskForm from "../TaskForm/TaskForm.jsx";
+import TaskItem from "../TaskItem/TaskItem.jsx";
+
 import { getAllTasks } from "../../services/taskService";
 import "./TaskList.css";
 
@@ -12,7 +17,17 @@ function TaskList() {
 
   const startXRef = useRef(0);
   const scrollLeftRef = useRef(0);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isToggleOpen, setIsToggleOpen] = useState(false);
+  const [formMode, setFormMode] = useState("create"); // ADD THIS LINE
 
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setIsUpdateOpen(true);
+  };
   const getRepetitions = (taskCount) => {
     if (taskCount <= 0) return 0;
     if (taskCount >= 20) return 5;
@@ -20,7 +35,24 @@ function TaskList() {
   };
   // this needs only for safe smooth scroll with  mouse drag on desktop mode.
   const repetitions = getRepetitions(tasks.length);
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    priority: "low",
+  });
+  const handleCreate = () => {
+    console.log("Create:", newTask);
 
+    // TODO api cals here
+
+    setNewTask({
+      title: "",
+      description: "",
+      priority: "low",
+    });
+
+    setIsCreateOpen(false);
+  };
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -37,7 +69,13 @@ function TaskList() {
 
     fetchTasks();
   }, []);
-
+  const handleToggle = (taskId) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId ? { ...task, completed: !task.completed } : task,
+      ),
+    );
+  };
   // infinite scrolling logic
   useEffect(() => {
     const carousel = carouselRef.current;
@@ -126,11 +164,21 @@ function TaskList() {
 
   return (
     <div className="task-list">
+      <TaskFilter
+        onAddTask={() => {
+          setNewTask({
+            title: "",
+            description: "",
+            priority: "",
+          });
+          setFormMode("create");
+          setIsCreateOpen(true);
+        }}
+      />{" "}
       <div className="header">
         <h2>Task List</h2>
         <span className="badge">{tasks.length} tasks</span>
       </div>
-
       <div
         className="carousel"
         ref={carouselRef}
@@ -143,7 +191,12 @@ function TaskList() {
           .fill(tasks)
           .flat()
           .map((task, index) => (
-            <div key={`${task.id}-${index}`} className="task-card">
+            <div
+              key={`${task.id}-${index}`}
+              className="task-card"
+              onClick={() => handleTaskClick(task)}
+            >
+              {" "}
               <h3>{task.title}</h3>
               <p>{task.description}</p>
               <div className="meta">
@@ -157,6 +210,76 @@ function TaskList() {
             </div>
           ))}
       </div>
+      <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)}>
+        <TaskForm
+          task={newTask}
+          setTask={setNewTask}
+          mode={formMode}
+          onSubmit={handleCreate}
+        />
+      </Modal>
+      <Modal isOpen={isUpdateOpen} onClose={() => setIsUpdateOpen(false)}>
+        <TaskItem
+          task={selectedTask}
+          onEdit={() => {
+            setIsUpdateOpen(false);
+            setNewTask(selectedTask);
+            setFormMode("update");
+            setIsCreateOpen(true);
+          }}
+          onToggle={() => {
+            setIsToggleOpen(true);
+          }}
+          onDelete={() => {
+            setIsDeleteOpen(true);
+          }}
+        />
+      </Modal>
+      <Modal isOpen={isToggleOpen} onClose={() => setIsToggleOpen(false)}>
+        <div>
+          <h3>
+            Are you sure you want to mark this task as{" "}
+            {selectedTask?.completed ? "active" : "completed"}?
+          </h3>
+
+          <div
+            style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}
+          >
+            <button onClick={() => setIsToggleOpen(false)}>Cancel</button>
+
+            <button
+              onClick={() => {
+                console.log("Toggle:", selectedTask);
+                handleToggle(selectedTask.id);
+                setIsToggleOpen(false);
+                setIsUpdateOpen(false);
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </Modal>
+      <Modal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)}>
+        <div>
+          <h3>Are you sure you want to delete?</h3>
+
+          <div
+            style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}
+          >
+            <button onClick={() => setIsDeleteOpen(false)}>Cancel</button>
+
+            <button
+              onClick={() => {
+                console.log("Delete:", selectedTask);
+                setIsDeleteOpen(false);
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
