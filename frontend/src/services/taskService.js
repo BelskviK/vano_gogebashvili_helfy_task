@@ -15,8 +15,11 @@ export const updateTask = async (id, taskData) => {
   const response = await api.put(`/tasks/${id}`, taskData);
   return response.data;
 };
-
-export const toggleTask = async (id) => {};
+// tpggle task complate status
+export const toggleTask = async (id) => {
+  const response = await api.patch(`/tasks/${id}/toggle`);
+  return response.data;
+};
 // delete Task
 export const deleteTask = async (id) => {
   const response = await api.delete(`/tasks/${id}`);

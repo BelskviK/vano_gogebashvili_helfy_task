@@ -9,6 +9,7 @@ import {
   createTask,
   updateTask,
   deleteTask,
+  toggleTask,
 } from "../../services/taskService";
 import "./TaskList.css";
 
@@ -104,13 +105,23 @@ function TaskList() {
 
     fetchTasks();
   }, []);
-  const handleToggle = (taskId) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task,
-      ),
-    );
+
+  const handleToggle = async () => {
+    try {
+      const updatedTask = await toggleTask(selectedTask.id);
+
+      setTasks((prev) =>
+        prev.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
+      );
+
+      setIsToggleOpen(false);
+      setIsUpdateOpen(false);
+      setSelectedTask(null);
+    } catch (error) {
+      console.error("Failed to toggle task:", error);
+    }
   };
+
   // infinite scrolling logic
   useEffect(() => {
     const carousel = carouselRef.current;
