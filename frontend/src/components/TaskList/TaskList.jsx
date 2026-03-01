@@ -8,6 +8,7 @@ import {
   getAllTasks,
   createTask,
   updateTask,
+  deleteTask,
 } from "../../services/taskService";
 import "./TaskList.css";
 
@@ -69,6 +70,21 @@ function TaskList() {
       setSelectedTask(null);
     } catch (error) {
       console.error("Failed to submit task:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteTask(selectedTask.id);
+
+      // Remove from UI
+      setTasks((prev) => prev.filter((task) => task.id !== selectedTask.id));
+
+      setIsDeleteOpen(false);
+      setIsUpdateOpen(false);
+      setSelectedTask(null);
+    } catch (error) {
+      console.error("Failed to delete task:", error);
     }
   };
 
@@ -288,14 +304,7 @@ function TaskList() {
           >
             <button onClick={() => setIsDeleteOpen(false)}>Cancel</button>
 
-            <button
-              onClick={() => {
-                console.log("Delete:", selectedTask);
-                setIsDeleteOpen(false);
-              }}
-            >
-              Delete
-            </button>
+            <button onClick={handleDelete}>Delete</button>
           </div>
         </div>
       </Modal>
