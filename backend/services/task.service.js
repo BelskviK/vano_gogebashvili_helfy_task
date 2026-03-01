@@ -29,7 +29,18 @@ export const createNewTask = ({ title, description, priority }) => {
 };
 
 export const updateTask = (id, data) => {
-  return "updateTask";
+  const task = tasks.find((t) => t.id === id);
+  if (!task) return null;
+
+  if (data.priority && !allowedPriorities.includes(data.priority)) {
+    return null;
+  }
+
+  task.title = data.title ?? task.title;
+  task.description = data.description ?? task.description;
+  task.priority = data.priority ?? task.priority;
+
+  return task;
 };
 
 export const deleteTask = (id) => {
