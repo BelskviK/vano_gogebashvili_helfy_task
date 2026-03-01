@@ -4,7 +4,11 @@ import Modal from "../Modals/Modal.jsx";
 import TaskForm from "../TaskForm/TaskForm.jsx";
 import TaskItem from "../TaskItem/TaskItem.jsx";
 
-import { getAllTasks, createTask } from "../../services/taskService";
+import {
+  getAllTasks,
+  createTask,
+  updateTask,
+} from "../../services/taskService";
 import "./TaskList.css";
 
 function TaskList() {
@@ -40,11 +44,20 @@ function TaskList() {
     description: "",
     priority: "low",
   });
-  const handleCreate = async () => {
-    try {
-      const createdTask = await createTask(newTask);
 
-      setTasks((prevTasks) => [...prevTasks, createdTask]);
+  const handleSubmit = async () => {
+    try {
+      if (formMode === "create") {
+        const createdTask = await createTask(newTask);
+
+        setTasks((prev) => [...prev, createdTask]);
+      } else if (formMode === "update") {
+        const updatedTask = await updateTask(newTask.id, newTask);
+
+        setTasks((prev) =>
+          prev.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
+        );
+      }
 
       setNewTask({
         title: "",
@@ -53,10 +66,12 @@ function TaskList() {
       });
 
       setIsCreateOpen(false);
+      setSelectedTask(null);
     } catch (error) {
-      console.error("Failed to create task:", error);
+      console.error("Failed to submit task:", error);
     }
   };
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -219,7 +234,7 @@ function TaskList() {
           task={newTask}
           setTask={setNewTask}
           mode={formMode}
-          onSubmit={handleCreate}
+          onSubmit={handleSubmit}
         />
       </Modal>
       <Modal isOpen={isUpdateOpen} onClose={() => setIsUpdateOpen(false)}>
